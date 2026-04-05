@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowRight, Instagram, Mail } from 'lucide-react';
+import { ArrowRight, Mail } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -214,7 +214,7 @@ export default function Home() {
       <footer className="relative z-20 bg-obsidian border-t border-white/10 py-12 px-12 flex flex-col md:flex-row justify-between items-center text-xs tracking-widest uppercase text-alabaster/40">
         <p>Strictly confidential. Studio director will reply within 48h.</p>
         <div className="flex gap-6 mt-6 md:mt-0">
-          <a href="#" className="hover:text-champagne"><Instagram className="w-4 h-4" /></a>
+          <a href="#" className="hover:text-champagne">Instagram</a>
           <a href="#" className="hover:text-champagne"><Mail className="w-4 h-4" /></a>
         </div>
       </footer>
