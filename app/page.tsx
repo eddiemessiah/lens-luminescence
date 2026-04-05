@@ -11,12 +11,21 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Home() {
   const container = useRef(null);
   const heroRef = useRef(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
+  const [carouselWidth, setCarouselWidth] = useState(0);
 
   // Preloader Logic
   useEffect(() => {
     setTimeout(() => setLoading(false), 2000);
   }, []);
+
+  // Carousel Constraint Logic
+  useEffect(() => {
+    if (carouselRef.current) {
+      setCarouselWidth(carouselRef.current.scrollWidth - carouselRef.current.offsetWidth);
+    }
+  }, [loading]);
 
   const { scrollYProgress } = useScroll({
     target: container,
@@ -36,7 +45,7 @@ export default function Home() {
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           className="text-alabaster/60 font-sans tracking-[0.3em] uppercase text-sm"
         >
-          Light. Form. Emotion.
+          Dave Photography.
         </motion.div>
       </div>
     );
@@ -47,7 +56,7 @@ export default function Home() {
       
       {/* Navbar (Minimal) */}
       <nav className="fixed top-0 w-full z-40 p-8 flex justify-between items-center mix-blend-difference">
-        <div className="font-serif text-2xl font-semibold tracking-wide text-white">L&L.</div>
+        <div className="font-serif text-2xl font-semibold tracking-wide text-white">DAVE.</div>
         <div className="flex gap-8 text-xs uppercase tracking-widest text-white/70">
           <a href="#vault" data-cursor="hover" className="hover:text-champagne transition-colors">The Vault</a>
           <a href="#studio" data-cursor="hover" className="hover:text-champagne transition-colors">Studio</a>
@@ -57,7 +66,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section ref={heroRef} className="h-[100vh] w-full sticky top-0 flex flex-col justify-center px-12 md:px-24">
-        {/* Placeholder for Cinematic Video/Image Background */}
+        {/* Cinematic Image Background */}
         <motion.div 
           className="absolute inset-0 z-0 bg-charcoal"
           style={{ scale: heroScale, opacity: heroOpacity }}
@@ -77,7 +86,7 @@ export default function Home() {
             transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="font-serif text-5xl md:text-7xl lg:text-8xl leading-[1.1] text-alabaster font-light"
           >
-            Capturing the <span className="italic text-champagne">Elegance</span> <br/>of the Unseen.
+            Dave Photography. <br/>Capturing the <span className="italic text-champagne">Elegance</span> <br/>of the Unseen.
           </motion.h1>
           
           <motion.p 
@@ -103,42 +112,44 @@ export default function Home() {
         </div>
       </section>
 
-      {/* The Vault (Gallery) */}
-      <section id="vault" className="relative z-20 bg-obsidian pt-40 pb-32 px-6 md:px-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-24">
-            <h2 className="font-serif text-5xl md:text-7xl text-alabaster">A Curation <br/><span className="text-champagne italic">of Moments.</span></h2>
-            <div className="flex gap-6 text-sm uppercase tracking-wider text-alabaster/50 mt-8 md:mt-0">
-              <span className="text-champagne border-b border-champagne pb-1 cursor-pointer">Editorial</span>
-              <span className="hover:text-alabaster cursor-pointer transition-colors">Weddings</span>
-              <span className="hover:text-alabaster cursor-pointer transition-colors">Fine Art</span>
-            </div>
-          </div>
-
-          {/* Asymmetrical Masonry Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16">
-            <div className="md:col-span-5 space-y-16">
-              <div className="relative aspect-[3/4] group overflow-hidden bg-charcoal" data-cursor="hover">
-                <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" alt="Fashion 1" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                  <p className="text-sm tracking-widest uppercase text-champagne">View Editorial</p>
-                </div>
-              </div>
-              <div className="relative aspect-square group overflow-hidden bg-charcoal" data-cursor="hover">
-                <img src="https://images.unsplash.com/photo-1606813907291-d86efa9b94db?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" alt="Wedding 1" />
-              </div>
-            </div>
-            
-            <div className="md:col-span-7 space-y-16 md:pt-32">
-              <div className="relative aspect-video group overflow-hidden bg-charcoal" data-cursor="hover">
-                <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" alt="Fine Art 1" />
-              </div>
-              <div className="relative aspect-[3/4] md:w-3/4 ml-auto group overflow-hidden bg-charcoal" data-cursor="hover">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" alt="Fashion 2" />
-              </div>
-            </div>
-          </div>
+      {/* The Vault (Swipeable Carousel) */}
+      <section id="vault" className="relative z-20 bg-obsidian pt-40 pb-32 overflow-hidden">
+        <div className="px-6 md:px-12 mb-16">
+          <h2 className="font-serif text-5xl md:text-7xl text-alabaster">A Curation <br/><span className="text-champagne italic">of Moments.</span></h2>
+          <p className="text-sm tracking-widest uppercase text-alabaster/40 mt-8">&larr; Swipe or Drag to Explore &rarr;</p>
         </div>
+
+        {/* Framer Motion Drag Carousel */}
+        <motion.div ref={carouselRef} className="cursor-grab active:cursor-grabbing overflow-hidden pl-6 md:pl-12">
+          <motion.div 
+            drag="x" 
+            dragConstraints={{ right: 0, left: -carouselWidth }} 
+            className="flex gap-8 md:gap-16 w-max"
+          >
+            {/* Carousel Item 1 */}
+            <motion.div className="relative w-[80vw] md:w-[40vw] aspect-[3/4] group overflow-hidden bg-charcoal" data-cursor="hover">
+              <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105 pointer-events-none" alt="Fashion 1" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                <p className="text-sm tracking-widest uppercase text-champagne">View Editorial</p>
+              </div>
+            </motion.div>
+            
+            {/* Carousel Item 2 */}
+            <motion.div className="relative w-[80vw] md:w-[40vw] aspect-square group overflow-hidden bg-charcoal" data-cursor="hover">
+              <img src="https://images.unsplash.com/photo-1606813907291-d86efa9b94db?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105 pointer-events-none" alt="Wedding 1" />
+            </motion.div>
+
+            {/* Carousel Item 3 */}
+            <motion.div className="relative w-[80vw] md:w-[40vw] aspect-video group overflow-hidden bg-charcoal mt-auto" data-cursor="hover">
+              <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105 pointer-events-none" alt="Fine Art 1" />
+            </motion.div>
+
+            {/* Carousel Item 4 */}
+            <motion.div className="relative w-[80vw] md:w-[40vw] aspect-[3/4] group overflow-hidden bg-charcoal" data-cursor="hover">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105 pointer-events-none" alt="Fashion 2" />
+            </motion.div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* The Studio */}
@@ -149,7 +160,7 @@ export default function Home() {
             Photography is more than the documentation of time; it is the art of preserving an atmosphere.
           </p>
           <p className="text-alabaster/60 font-light leading-loose max-w-2xl mx-auto">
-            Operating at the intersection of fine art and high fashion, our studio provides a highly curated, white-glove experience. From the initial creative consultation to the final delivery of archival-quality prints, every step is tailored to reflect the unique essence of our clients.
+            Operating at the intersection of fine art and high fashion, Dave Photography provides a highly curated, white-glove experience. From the initial creative consultation to the final delivery of archival-quality prints, every step is tailored to reflect the unique essence of our clients.
           </p>
 
           <div className="grid md:grid-cols-3 gap-12 pt-20 text-left border-t border-white/10">
@@ -172,9 +183,9 @@ export default function Home() {
       {/* Inquiry Form */}
       <section id="inquiry" className="relative z-20 bg-obsidian py-40 px-6 md:px-12">
         <div className="max-w-3xl mx-auto">
-          <h2 className="font-serif text-5xl md:text-7xl mb-6">Commission <span className="italic text-champagne">a Vision.</span></h2>
+          <h2 className="font-serif text-5xl md:text-7xl mb-6">Commission <span className="italic text-champagne">Dave.</span></h2>
           <p className="text-alabaster/50 font-light mb-16 max-w-lg leading-relaxed">
-            Due to the bespoke nature of our work, we accept a limited number of commissions each season to ensure uncompromising quality.
+            Due to the bespoke nature of our work, Dave Photography accepts a limited number of commissions each season to ensure uncompromising quality.
           </p>
 
           <form className="space-y-12">
@@ -203,7 +214,7 @@ export default function Home() {
               <textarea rows={4} placeholder="Dates, locations, concepts..." className="w-full bg-transparent border-b border-white/20 pb-4 text-lg text-alabaster focus:outline-none focus:border-champagne transition-colors placeholder:text-white/20 resize-none"></textarea>
             </div>
 
-            <button type="submit" data-cursor="hover" className="w-full md:w-auto px-12 py-5 bg-champagne text-obsidian uppercase tracking-widest text-sm font-semibold hover:bg-white transition-colors duration-500">
+            <button type="button" data-cursor="hover" className="w-full md:w-auto px-12 py-5 bg-champagne text-obsidian uppercase tracking-widest text-sm font-semibold hover:bg-white transition-colors duration-500">
               Request Consultation
             </button>
           </form>
@@ -212,9 +223,9 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="relative z-20 bg-obsidian border-t border-white/10 py-12 px-12 flex flex-col md:flex-row justify-between items-center text-xs tracking-widest uppercase text-alabaster/40">
-        <p>Strictly confidential. Studio director will reply within 48h.</p>
+        <p>&copy; 2026 Dave Photography. Strictly confidential.</p>
         <div className="flex gap-6 mt-6 md:mt-0">
-          <a href="#" className="hover:text-champagne">Instagram</a>
+          <a href="#" className="hover:text-champagne">INSTAGRAM</a>
           <a href="#" className="hover:text-champagne"><Mail className="w-4 h-4" /></a>
         </div>
       </footer>
